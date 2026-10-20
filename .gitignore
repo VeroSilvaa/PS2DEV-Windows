@@ -1,9 +1,6 @@
 # Fontes de terceiros baixados pelos scripts
 /src/
 
-# Projetos de referência locais (repositórios próprios)
-/PS2FileManager/
-
 # Saídas de build
 *.o
 *.elf
