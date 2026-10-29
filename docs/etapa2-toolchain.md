@@ -38,3 +38,35 @@ Objetivo: os `.exe` dependem apenas de DLLs do próprio Windows (KERNEL32, UCRT 
 ## 2.2 GCC EE estágio 1
 
 Script: `scripts/03-ee-gcc-stage1.sh` → oficial `002-gcc-stage1.sh` (C apenas, sem newlib).
+
+### Resultado (19/10/2026) ✅
+- Tempo: 32 min. `mips64r5900el-ps2-elf-gcc` 15.2.0 nativo, sem DLLs do MSYS2.
+- Objeto gerado com flags `0x20920025` (noreorder, cpic, abi2, 5900, mips3) — iguais às do ELF do Docker.
+
+## 2.3 Newlib e Newlib-nano ✅
+
+Script: `scripts/04-ee-newlib.sh` → oficiais `003-newlib.sh` e `004-newlib-nano.sh`.
+- Tempo: 3 min 17 s + 3 min 21 s.
+- Instalado: `libc.a`, `libm.a`, `libg.a` e versões `_nano`.
+- Observação: builds em segundo plano do Claude Code morrem quando a sessão termina — a primeira tentativa foi perdida.
+  Agora os builds longos rodam como processo independente (`Start-Process powershell -WindowStyle Hidden`) e gravam `<etapa>.exit`.
+
+## 2.4 pthread-embedded, GCC EE estágio 2 (C/C++) e pós-instalação ✅
+
+Script: `scripts/05-ee-gcc-stage2.sh` → oficiais `005`, `006` e `007`.
+- Tempo: pthread 9 s; GCC estágio 2 **19 min 51 s**; pós-instalação instantânea.
+- Mensagem `largefile-config.h ... Error 1 (ignored)` da libstdc++ é conhecida e ignorada pelo próprio build oficial.
+
+### Testes (MSYS2 fora do PATH)
+| Teste | Resultado |
+|---|---|
+| `gcc` / `g++` 15.2.0 | ✅ |
+| Compilar C (printf, malloc, math, 64 bits, float) e C++17 (string, vector, sort, unique_ptr, exceções, virtual) | ✅ |
+| 35 `.exe` do EE (bin + libexec) com DLL fora do Windows | **0** |
+| Ligação **sem** o PS2SDK (`-nostdlib -lstdc++ -lm -lc -lgcc`) | ✅ ELF C (632 KB) e C++ (1,1 MB, 303 símbolos da libstdc++) |
+
+Na ligação sem PS2SDK só faltam o que o PS2SDK fornece: chamadas de sistema (`_write`, `_sbrk`, `_read`...),
+travas da newlib (`__retarget_lock_*`), `pthread_*` (pthreadglue) e `__dso_handle` (crt0).
+A ligação normal (`gcc prog.c -o prog.elf`) pede `-lkernel -lcglue -lpthreadglue -lcdvd` — chegam na Etapa 3 (PS2SDK).
+
+**Compilador do EE completo.** Pendente: comparar o código gerado com o do Docker (Docker Desktop estava fechado).
