@@ -11,6 +11,15 @@ set -e
 # Ports com CMake: mesmo gerador do DVP.
 export CMAKE_GENERATOR=Ninja
 
+# build-cmakelibs.sh monta o nome do make a partir do uname: no CI oficial (MINGW32)
+# vira "MINGW32-make"; no UCRT64 vira "MINGW64-make", que nao existe (o executavel
+# continua sendo mingw32-make). Atalho so para o build, sem alterar o script oficial.
+SHIMS="$BUILD/shims"
+mkdir -p "$SHIMS"
+printf '#!/bin/sh\nexec mingw32-make "$@"\n' > "$SHIMS/mingw64-make"
+chmod +x "$SHIMS/mingw64-make"
+export PATH="$SHIMS:$PATH"
+
 mkdir -p "$BUILD/ps2dev"
 cd "$BUILD/ps2dev"
 
