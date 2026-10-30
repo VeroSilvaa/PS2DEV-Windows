@@ -11,6 +11,11 @@ param(
 # Com -File, uma lista chega como texto unico ("a,b,c"): separa aqui.
 $Steps = @($Steps | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 
+# Impede a suspensao do Windows enquanto este processo roda (a suspensao mata o build).
+# Vale so durante a sequencia; as configuracoes de energia nao mudam.
+Add-Type -Namespace Win32 -Name Power -MemberDefinition '[DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint esFlags);'
+[void][Win32.Power]::SetThreadExecutionState([uint32]'0x80000001')   # ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+
 $build  = 'D:\ps2build'
 $status = Join-Path $build 'pipeline.status'
 
