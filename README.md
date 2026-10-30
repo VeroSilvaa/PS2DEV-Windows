@@ -15,9 +15,13 @@ Todos os executáveis são ligados estaticamente: dependem apenas de DLLs do pr�
 | 2 | **IOP**: Binutils, GCC | ✅ |
 | 2 | **DVP** (VU0/VU1): Binutils, masp, openvcl | ✅ |
 | 3 | **PS2SDK**, ps2sdk-ports, **gsKit**, ps2-packer, ps2client | ✅ |
-| 5 | Teste real: o [PS2FileManager](https://github.com/VeroSilvaa/PS2FileManager) (gsKit, rede, HDD, módulos IOP próprios) compila com este toolchain | ✅ |
+| 5 | Teste real: o [PS2FileManager](https://github.com/VeroSilvaa/PS2FileManager) (gsKit, rede, HDD, módulos IOP próprios) compila com este toolchain e inicia no PCSX2 | ✅ |
 | 4 | Integração com VS Code | ⏳ |
 | 6 | Pacote portátil (`setup.ps1`) e Release com os binários | ⏳ |
+
+Enquanto o pacote da Etapa 6 não existe, é preciso compilar o toolchain e usar o `make` do MSYS2
+para projetos com Makefile. O compilador em si roda fora do MSYS2. Resultados dos testes em
+[`docs/etapa3-sdk-e-validacao.md`](docs/etapa3-sdk-e-validacao.md).
 
 ## Versões (equivalentes a `ghcr.io/ps2dev/ps2dev:latest`)
 
@@ -88,12 +92,20 @@ O CI oficial do ps2dev só compila para Windows em 32 bits (MINGW32). Para x64 (
 | Problema | Correção |
 |---|---|
 | Executáveis dependiam de DLLs do MSYS2 | `LDFLAGS="-static --static -static-libgcc -static-libstdc++"` (`--static` atravessa o libtool) |
+| GCC com `-static` fica sem o plugin de LTO, e o gsKit usa LTO | só o GCC liga com as bibliotecas estáticas em pasta própria, sem `-static` (`use_gcc_ldflags` em `env.sh`) |
 | gdb: `undefined reference to __imp_*` (ncurses) | `CPPFLAGS=-DNCURSES_STATIC` |
 | gdb: `multiple definition of PC/UP/BC` | `CFLAGS="-g -O2 -fcommon"` (termcap.h do MSYS2 + GCC ≥ 10) |
+| `iopfixup`, `eefixup`, `irx-strip`, `erx-strip` instalados sem `.exe` | renomeados para `.exe` em `08-ps2sdk.sh` |
 | ports: `MINGW64-make: command not found` | atalho `mingw64-make` → `mingw32-make` só durante o build |
 | ports: `autoreconf`/`autopoint` ausentes | pacotes `autotools` e `gettext-devel` |
+| ports: CMake nativo não executa o `pkg-config` do PS2SDK (script sh) | versão `.exe` em `tools/pkg-config-wrapper.c` |
+| libpng não instala o `.pc` no CMake do Windows: gsKit sem PNG, erro `jmp_buf` | `libpng.pc` criado em `09-ports-gskit.sh` antes dos ports |
+| bzip2: Windows recusa os links simbólicos dos programas | só a biblioteca (`-DENABLE_LIB_ONLY=ON`); **sem `bzip2.elf` e afins** |
+| `.pc` com caminho `D:/...`, que o `sed` oficial não reconhece | `sed` próprio em `09-ports-gskit.sh` (`${pcfiledir}`) |
+| `ps2client` e `zlib-packer.dll` dependiam de DLLs do MSYS2 | `CC="gcc -static"` e `LIBZA=-l:libz.a` em `10-extras.sh` |
 
-Detalhes em [`docs/etapa2-toolchain.md`](docs/etapa2-toolchain.md).
+Detalhes em [`docs/etapa2-toolchain.md`](docs/etapa2-toolchain.md) e
+[`docs/etapa3-sdk-e-validacao.md`](docs/etapa3-sdk-e-validacao.md).
 
 ## Créditos e licenças
 

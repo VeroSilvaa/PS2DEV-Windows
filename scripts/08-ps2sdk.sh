@@ -16,6 +16,13 @@ cd "$BUILD/ps2dev"
 echo "=== ps2sdk"
 time bash "$PROJ/src/ps2dev/scripts/002-ps2sdk.sh"
 
+# O PS2SDK instala estas copias do srxfixup.exe sem extensao: so o bash do MSYS2 as executa.
+for tool in eefixup erx-strip iopfixup irx-strip; do
+    if [ -f "$PS2SDK/bin/$tool" ] && [ ! -e "$PS2SDK/bin/$tool.exe" ]; then
+        mv -f "$PS2SDK/bin/$tool" "$PS2SDK/bin/$tool.exe"
+    fi
+done
+
 echo "=== instalado:"
 ls "$PS2SDK"
 echo "libs EE: $(ls "$PS2SDK/ee/lib" | wc -l) | IRX: $(ls "$PS2SDK/iop/irx" | wc -l)"
