@@ -20,6 +20,16 @@ printf '#!/bin/sh\nexec mingw32-make "$@"\n' > "$SHIMS/mingw64-make"
 chmod +x "$SHIMS/mingw64-make"
 export PATH="$SHIMS:$PATH"
 
+# O PS2SDK instala mips64r5900el-ps2-elf-pkg-config como script sh, que o CMake nativo do
+# Windows nao executa. Instala a versao .exe (tools/pkg-config-wrapper.c) e guarda o script
+# como .sh (no bash do MSYS2 o nome sem extensao passa a achar o .exe).
+PKGCFG="$PS2SDK/bin/mips64r5900el-ps2-elf-pkg-config"
+if [ -f "$PKGCFG" ] && head -c 2 "$PKGCFG" | grep -q '#!'; then
+    mv -f "$PKGCFG" "$PKGCFG.sh"
+fi
+gcc -O2 -static -o "$PKGCFG.exe" "$PROJ/tools/pkg-config-wrapper.c"
+echo "pkg-config do PS2: $("$PKGCFG.exe" --version) | zlib: $("$PKGCFG.exe" --modversion zlib 2>/dev/null || echo '-')"
+
 mkdir -p "$BUILD/ps2dev"
 cd "$BUILD/ps2dev"
 
