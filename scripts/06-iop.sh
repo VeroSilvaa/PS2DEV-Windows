@@ -13,12 +13,19 @@ mkdir -p "$BUILD/iop"
 cd "$BUILD/iop"
 
 echo "=== binutils IOP"
-# Mesmo ajuste do EE: termcap.h do MSYS2 + readline do gdb (ver 02-ee-binutils.sh)
-( export CFLAGS="-g -O2 -fcommon"
-  time bash "$PROJ/src/ps2toolchain-iop/scripts/001-binutils.sh" )
+# Ja instalado: pula (refazer so o GCC). FORCE=1 compila de novo.
+if [ -z "$FORCE" ] && [ -f "$PS2DEV/iop/bin/mipsel-none-elf-ld.exe" ]; then
+    echo "ja instalado, pulando (FORCE=1 para refazer)"
+else
+    # Mesmo ajuste do EE: termcap.h do MSYS2 + readline do gdb (ver 02-ee-binutils.sh)
+    ( export CFLAGS="-g -O2 -fcommon"
+      time bash "$PROJ/src/ps2toolchain-iop/scripts/001-binutils.sh" )
+fi
 
 echo "=== gcc IOP"
-time bash "$PROJ/src/ps2toolchain-iop/scripts/002-gcc-stage1.sh"
+( use_gcc_ldflags
+  time bash "$PROJ/src/ps2toolchain-iop/scripts/002-gcc-stage1.sh" )
+install_bfd_plugin iop mipsel-none-elf
 
 echo "=== instalado:"
 ls "$PS2DEV/iop/bin"

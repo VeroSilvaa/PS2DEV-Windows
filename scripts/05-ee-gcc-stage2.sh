@@ -16,7 +16,14 @@ echo "=== pthread-embedded"
 time bash "$PROJ/src/ps2toolchain-ee/scripts/005-pthread-embedded.sh"
 
 echo "=== gcc stage2"
-time bash "$PROJ/src/ps2toolchain-ee/scripts/006-gcc-stage2.sh"
+( use_gcc_ldflags
+  time bash "$PROJ/src/ps2toolchain-ee/scripts/006-gcc-stage2.sh" )
+install_bfd_plugin ee mips64r5900el-ps2-elf
+
+# O gsKit compila com LTO: falha cedo se o gcc ficou sem "linker plugin".
+echo 'int f(int x){return x+1;}' > /tmp/lto_check.c
+mips64r5900el-ps2-elf-gcc -O2 -flto -fno-fat-lto-objects -c /tmp/lto_check.c -o /tmp/lto_check.o
+echo "LTO com linker plugin: ok"
 
 echo "=== post-install"
 time bash "$PROJ/src/ps2toolchain-ee/scripts/007-post-install.sh"
