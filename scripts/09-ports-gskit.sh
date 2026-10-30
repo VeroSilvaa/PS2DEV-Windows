@@ -8,6 +8,14 @@ rm -f "$EXIT_FILE"
 trap 'echo "EXIT=$?" > "$EXIT_FILE"' EXIT
 set -e
 
+# crt0.o vem do PS2SDK. O 05-ee-gcc-stage2.sh (007-post-install oficial) o apaga, entao
+# refazer o GCC do EE exige refazer o 08-ps2sdk.sh antes de chegar aqui.
+CRT0="$PS2DEV/ee/mips64r5900el-ps2-elf/lib/crt0.o"
+if [ ! -f "$CRT0" ]; then
+    echo "ERRO: $CRT0 nao existe: rode 08-ps2sdk.sh depois do 05-ee-gcc-stage2.sh"
+    exit 1
+fi
+
 # Ports com CMake: mesmo gerador do DVP.
 export CMAKE_GENERATOR=Ninja
 
