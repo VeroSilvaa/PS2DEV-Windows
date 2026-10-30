@@ -26,6 +26,19 @@ SHIMS="$BUILD/shims"
 mkdir -p "$SHIMS"
 printf '#!/bin/sh\nexec mingw32-make "$@"\n' > "$SHIMS/mingw64-make"
 chmod +x "$SHIMS/mingw64-make"
+
+# O bzip2 tambem gera os programas para o PS2 (bzip2.elf, bzcmp...), com links simbolicos que
+# o Windows recusa sem modo de desenvolvedor ou administrador. So a biblioteca interessa:
+# o script oficial chama "cmake" pelo nome, e este atalho acrescenta a opcao so nesse caso.
+REAL_CMAKE="$(command -v cmake)"
+cat > "$SHIMS/cmake" <<EOF
+#!/bin/sh
+case "\$PWD" in
+    */build/bzip2/build_ee) exec "$REAL_CMAKE" -DENABLE_LIB_ONLY=ON "\$@" ;;
+esac
+exec "$REAL_CMAKE" "\$@"
+EOF
+chmod +x "$SHIMS/cmake"
 export PATH="$SHIMS:$PATH"
 
 # O PS2SDK instala mips64r5900el-ps2-elf-pkg-config como script sh, que o CMake nativo do
@@ -38,12 +51,40 @@ fi
 gcc -O2 -static -o "$PKGCFG.exe" "$PROJ/tools/pkg-config-wrapper.c"
 echo "pkg-config do PS2: $("$PKGCFG.exe" --version) | zlib: $("$PKGCFG.exe" --modversion zlib 2>/dev/null || echo '-')"
 
+# O CMake do libpng so instala o .pc com "NOT CMAKE_HOST_WIN32": no CMake nativo do Windows
+# ele nunca e instalado, e o gsKit (pkg_check_modules libpng) fica sem PNG e nao compila
+# (o setjmp.h so entra pelo png.h). Precisa existir antes do script oficial, que faz tudo de
+# uma vez. Versao fixada em build-cmakelibs.sh.
+mkdir -p "$PS2SDK/ports/lib/pkgconfig"
+cat > "$PS2SDK/ports/lib/pkgconfig/libpng16.pc" <<'EOF'
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include/libpng16
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.6.53
+Requires.private: zlib
+Libs: -L${libdir} -lpng16
+Libs.private: -lz -lm
+Cflags: -I${includedir}
+EOF
+cp -f "$PS2SDK/ports/lib/pkgconfig/libpng16.pc" "$PS2SDK/ports/lib/pkgconfig/libpng.pc"
+
 mkdir -p "$BUILD/ps2dev"
 cd "$BUILD/ps2dev"
+
+# O CMake guarda em cache o resultado do pkg_check_modules: refaz a configuracao do gsKit.
+rm -rf ps2sdk-ports/build/gsKit/build_ee ps2sdk-ports/build/bzip2/build_ee
 
 echo "=== ps2sdk-ports"
 time bash "$PROJ/src/ps2dev/scripts/003-ps2sdk-ports.sh"
 echo "ports: $(ls "$PS2SDK/ports/lib" 2>/dev/null | wc -l) bibliotecas"
+
+# Falha cedo se o gsKit ficou sem PNG (o PS2FileManager depende disso).
+grep -q '^LIBPNG_FOUND:INTERNAL=1' ps2sdk-ports/build/gsKit/build_ee/CMakeCache.txt
+echo "gsKit com PNG: ok"
 
 # gsKit: se os ports nao o instalaram, compila como o Dockerfile do PS2DVDPlayer.
 echo "=== gsKit"
@@ -56,3 +97,11 @@ if [ ! -f "$GSKIT/lib/libgskit.a" ]; then
     ( cd gsKit && time make -j "$(getconf _NPROCESSORS_ONLN)" && make install )
 fi
 ls "$GSKIT/lib"
+
+# O sed oficial torna os .pc relocaveis procurando "/d/PS2DEV-Windows/...", mas o CMake
+# nativo grava "D:/PS2DEV-Windows/...": sem isto o pacote ficaria preso a este caminho.
+for root in "$PS2SDK/ports" "$GSKIT"; do
+    [ -d "$root/lib/pkgconfig" ] || continue
+    find "$root/lib/pkgconfig" -iname '*.pc' -exec sed -i -e "s|$(cygpath -m "$root")|\${pcfiledir}/../..|g" {} +
+done
+echo "libpng pelo pkg-config: $("$PKGCFG.exe" --cflags --libs libpng)"
