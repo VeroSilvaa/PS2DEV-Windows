@@ -8,6 +8,9 @@ param(
     [string[]]$Steps = @('08-ps2sdk', '09-ports-gskit', '10-extras', '11-teste-ps2filemanager')
 )
 
+# Com -File, uma lista chega como texto unico ("a,b,c"): separa aqui.
+$Steps = @($Steps | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+
 $build  = 'D:\ps2build'
 $status = Join-Path $build 'pipeline.status'
 
