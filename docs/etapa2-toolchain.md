@@ -70,3 +70,19 @@ travas da newlib (`__retarget_lock_*`), `pthread_*` (pthreadglue) e `__dso_handl
 A ligação normal (`gcc prog.c -o prog.elf`) pede `-lkernel -lcglue -lpthreadglue -lcdvd` — chegam na Etapa 3 (PS2SDK).
 
 **Compilador do EE completo.** Pendente: comparar o código gerado com o do Docker (Docker Desktop estava fechado).
+
+## 2.5 Toolchain do IOP (mipsel-none-elf) ✅
+
+Script: `scripts/06-iop.sh` → oficiais `ps2toolchain-iop/scripts/001-binutils.sh` e `002-gcc-stage1.sh`
+(fontes **upstream** do GNU: binutils `binutils-2_45_1`, gcc `releases/gcc-15.2.0`).
+- Mesmo ajuste do EE no binutils (gdb): `CFLAGS="-g -O2 -fcommon"`.
+- Tempo: binutils 17 min 26 s; GCC 34 min 3 s (o checkout do GCC upstream tem 144 mil arquivos).
+
+### Testes (MSYS2 fora do PATH)
+| Teste | Resultado |
+|---|---|
+| `mipsel-none-elf-gcc` 15.2.0 | ✅ |
+| Compilar com as flags do IOP (`-march=r3000 -msoft-float -G0`) | ✅ objeto `MIPS R3000`, `o32, mips1` |
+| Instruções de FPU geradas | **0** (float vira `__mulsf3` da libgcc, como esperado no IOP) |
+| Ligação com a `libgcc` | ✅ |
+| 34 `.exe` do IOP com DLL fora do Windows | **0** |
