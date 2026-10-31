@@ -19,7 +19,9 @@ o MSYS2 só é necessário para compilar o toolchain.
 | 5 | Teste real: o [PS2FileManager](https://github.com/VeroSilvaa/PS2FileManager) (gsKit, rede, HDD, módulos IOP próprios) compila com este toolchain e inicia no PCSX2 | ✅ |
 | 4 | Integração com VS Code: tarefas de compilação e IntelliSense nos exemplos | ✅ |
 | 6 | Pacote portátil (`setup.ps1`, `setup.cmd`, `make`, exemplos) | ✅ Testado sem MSYS2 |
-| 6 | Teste em um Windows limpo e Release pública | ⏳ |
+| 6 | [Release v0.1.0](https://github.com/VeroSilvaa/PS2DEV-Windows/releases/tag/v0.1.0) | ✅ |
+| 6 | Teste em um Windows limpo | ⏳ |
+| 5 | PS2DVDPlayer e console real | ⏳ |
 
 Resultados dos testes em [`docs/etapa3-sdk-e-validacao.md`](docs/etapa3-sdk-e-validacao.md) e
 [`docs/etapa4-6-pacote.md`](docs/etapa4-6-pacote.md). As instruções de uso do pacote estão em
