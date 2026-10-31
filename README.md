@@ -3,8 +3,9 @@
 Distribuição **nativa para Windows 10/11 x64** do toolchain [PS2DEV](https://github.com/ps2dev) —
 compile aplicativos e jogos de PlayStation 2 direto no Windows, sem Docker, WSL ou máquina virtual.
 
-Todos os executáveis são ligados estaticamente: dependem apenas de DLLs do próprio Windows
-(nenhuma DLL do MSYS2/MinGW).
+Os compiladores são ligados estaticamente e dependem apenas de DLLs do próprio Windows. O `make`, o
+`pkg-config` e os comandos POSIX usados pelos Makefiles vêm no pacote, com as DLLs de que precisam, e
+o MSYS2 só é necessário para compilar o toolchain.
 
 ## Progresso
 
@@ -16,12 +17,13 @@ Todos os executáveis são ligados estaticamente: dependem apenas de DLLs do pr�
 | 2 | **DVP** (VU0/VU1): Binutils, masp, openvcl | ✅ |
 | 3 | **PS2SDK**, ps2sdk-ports, **gsKit**, ps2-packer, ps2client | ✅ |
 | 5 | Teste real: o [PS2FileManager](https://github.com/VeroSilvaa/PS2FileManager) (gsKit, rede, HDD, módulos IOP próprios) compila com este toolchain e inicia no PCSX2 | ✅ |
-| 4 | Integração com VS Code | ⏳ |
-| 6 | Pacote portátil (`setup.ps1`) e Release com os binários | ⏳ |
+| 4 | Integração com VS Code: tarefas de compilação e IntelliSense nos exemplos | 🧪 Falta testar na interface |
+| 6 | Pacote portátil (`setup.ps1`, `setup.cmd`, `make`, exemplos) | ✅ Testado sem MSYS2 |
+| 6 | Teste em um Windows limpo e Release pública | ⏳ |
 
-Enquanto o pacote da Etapa 6 não existe, é preciso compilar o toolchain e usar o `make` do MSYS2
-para projetos com Makefile. O compilador em si roda fora do MSYS2. Resultados dos testes em
-[`docs/etapa3-sdk-e-validacao.md`](docs/etapa3-sdk-e-validacao.md).
+Resultados dos testes em [`docs/etapa3-sdk-e-validacao.md`](docs/etapa3-sdk-e-validacao.md) e
+[`docs/etapa4-6-pacote.md`](docs/etapa4-6-pacote.md). As instruções de uso do pacote estão em
+[`package/README.md`](package/README.md).
 
 ## Versões (equivalentes a `ghcr.io/ps2dev/ps2dev:latest`)
 
@@ -57,6 +59,10 @@ C:\msys64\usr\bin\bash.exe -l scripts/07-dvp.sh
 C:\msys64\usr\bin\bash.exe -l scripts/08-ps2sdk.sh
 C:\msys64\usr\bin\bash.exe -l scripts/09-ports-gskit.sh
 C:\msys64\usr\bin\bash.exe -l scripts/10-extras.sh
+
+# 4. Pacote portátil e teste sem MSYS2 no PATH
+C:\msys64\usr\bin\bash.exe -l scripts/12-pacote.sh
+powershell -ExecutionPolicy Bypass -File scripts\13-teste-pacote.ps1
 ```
 
 Ou tudo em sequência, como processo independente (cada etapa só começa se a anterior terminar bem;
@@ -76,14 +82,9 @@ Caminhos padrão (editáveis em `scripts/env.sh`):
 
 ## Usando o compilador
 
-Variáveis de ambiente (o `setup.ps1` da Etapa 6 fará isso automaticamente):
-
-```powershell
-$env:PS2DEV = 'D:\PS2DEV-Windows'
-$env:PS2SDK = "$env:PS2DEV\ps2sdk"
-$env:GSKIT  = "$env:PS2DEV\gsKit"
-$env:Path   = "$env:PS2DEV\bin;$env:PS2DEV\ee\bin;$env:PS2DEV\iop\bin;$env:PS2DEV\dvp\bin;$env:PS2SDK\bin;$env:Path"
-```
+Com o pacote extraído em uma pasta sem espaços, rode `setup.ps1` (PowerShell) ou `setup.cmd` (CMD).
+O `setup.ps1 -Persist` grava as variáveis para o usuário, o que o VS Code precisa. Detalhes em
+[`package/README.md`](package/README.md).
 
 ## Ajustes para Windows x64 (resumo)
 

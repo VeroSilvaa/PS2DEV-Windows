@@ -1,0 +1,20 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "PS2 EE",
+            "compilerPath": "${env:PS2DEV}/ee/bin/mips64r5900el-ps2-elf-gcc.exe",
+            "intelliSenseMode": "gcc-x64",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "defines": ["_EE"],
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${env:PS2SDK}/ee/include",
+                "${env:PS2SDK}/common/include",
+                "${env:PS2SDK}/ports/include",
+                "${env:GSKIT}/include"
+            ]
+        }
+    ]
+}

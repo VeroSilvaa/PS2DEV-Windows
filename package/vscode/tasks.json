@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "PATH": "${env:PS2DEV}/posix/usr/bin;${env:PS2DEV}/bin;${env:PS2DEV}/ee/bin;${env:PS2DEV}/iop/bin;${env:PS2DEV}/dvp/bin;${env:PS2DEV}/ps2sdk/bin;${env:PATH}"
+        }
+    },
+    "tasks": [
+        {
+            "label": "Compilar",
+            "type": "process",
+            "command": "make",
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Limpar",
+            "type": "process",
+            "command": "make",
+            "args": ["clean"],
+            "problemMatcher": []
+        }
+    ]
+}
