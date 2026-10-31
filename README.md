@@ -17,7 +17,7 @@ o MSYS2 só é necessário para compilar o toolchain.
 | 2 | **DVP** (VU0/VU1): Binutils, masp, openvcl | ✅ |
 | 3 | **PS2SDK**, ps2sdk-ports, **gsKit**, ps2-packer, ps2client | ✅ |
 | 5 | Teste real: o [PS2FileManager](https://github.com/VeroSilvaa/PS2FileManager) (gsKit, rede, HDD, módulos IOP próprios) compila com este toolchain e inicia no PCSX2 | ✅ |
-| 4 | Integração com VS Code: tarefas de compilação e IntelliSense nos exemplos | 🧪 Falta testar na interface |
+| 4 | Integração com VS Code: tarefas de compilação e IntelliSense nos exemplos | ✅ |
 | 6 | Pacote portátil (`setup.ps1`, `setup.cmd`, `make`, exemplos) | ✅ Testado sem MSYS2 |
 | 6 | Teste em um Windows limpo e Release pública | ⏳ |
 
@@ -29,9 +29,9 @@ Resultados dos testes em [`docs/etapa3-sdk-e-validacao.md`](docs/etapa3-sdk-e-va
 
 | Componente | Versão |
 |---|---|
-| Binutils EE / DVP | 2.45.1 (`ps2dev/binutils-gdb`, tags `ee-v2.45.1` / `dvp-v2.45.1`) |
-| GCC EE | 15.2.0 (`ps2dev/gcc`, tag `ee-v15.2.0`) |
-| Newlib EE | 4.6.0 (`ps2dev/newlib`, tag `ee-v4.6.0`) |
+| Binutils EE / DVP | 2.45.1 (`ps2dev/binutils-gdb`, branches `ee-v2.45.1` / `dvp-v2.45.1`) |
+| GCC EE | 15.2.0 (`ps2dev/gcc`, branch `ee-v15.2.0`) |
+| Newlib EE | 4.6.0 (`ps2dev/newlib`, branch `ee-v4.6.0`) |
 | Binutils / GCC IOP | 2.45.1 / 15.2.0 (upstream GNU) |
 | masp / openvcl | v0.1.16 / v0.4.0 |
 | PS2SDK, ps2sdk-ports, gsKit, ps2-packer, ps2client | `master` |

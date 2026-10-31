@@ -40,10 +40,15 @@ Todos com o MSYS2 fora do PATH.
 | Tudo acima, exceto o PCSX2, com `C:\msys64` renomeado | ok |
 | `pkg-config`, `ps2-packer` e `sh` com `C:\msys64` renomeado | ok |
 | `-Persist`, compilação com o PATH resultante e `-Remove` | ok |
+| VS Code: comando de build padrão (o do `Ctrl+Shift+B`) | tarefa `Compilar` com saída 0; gera `hello.elf` |
+| VS Code: IntelliSense em `scr_printf` | definição em `ps2sdk/ee/include/debug.h`, sem erros |
+| VS Code: controle com `#include` inexistente | erro detectado |
+
+O teste do VS Code 1.144.0 usou a extensão C/C++ 1.34.4 em um perfil isolado, com as variáveis gravadas
+pelo `-Persist`. Uma extensão de teste executou os comandos pela API, sem digitação na janela.
 
 ## Ainda não testado
 
 - Windows limpo: o Windows 11 Home desta máquina não tem Windows Sandbox.
-- Tarefas e IntelliSense na interface do VS Code: só o formato dos JSON foi validado.
 - Interação com o exemplo `gamepad`: só a inicialização foi verificada.
 - PS2DVDPlayer e console real, que a especificação também pede na Etapa 5.

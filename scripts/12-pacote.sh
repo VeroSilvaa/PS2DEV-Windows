@@ -44,7 +44,7 @@ done
 # Setup, exemplos, documentacao
 SRC="$PROJ/package"
 cp "$SRC/setup.ps1" "$SRC/setup.cmd" "$SRC/README.md" "$SRC/LICENSES.md" "$PKG/"
-cp -r "$SRC/examples" "$PKG/"
+cp -r "$SRC/examples" "$SRC/licenses" "$PKG/"
 for example in "$PKG"/examples/*/; do
     mkdir -p "$example/.vscode"
     cp "$SRC/vscode/"*.json "$example/.vscode/"
